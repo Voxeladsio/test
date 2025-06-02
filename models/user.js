@@ -5,10 +5,10 @@ const { Schema } = mongoose;
 const baseOptions = {
   discriminatorKey: 'role',
   collection: 'users',
-  timestamps: true
+  timestamps: true          // adds createdAt & updatedAt
 };
 
-/* ── BaseUserSchema ───────────────────────────────────────────────────── */
+/* ────────── BaseUserSchema ────────── */
 const BaseUserSchema = new Schema(
   {
     email:    { type: String, required: true, unique: true, lowercase: true },
@@ -19,7 +19,7 @@ const BaseUserSchema = new Schema(
 
 const User = mongoose.model('User', BaseUserSchema);
 
-/* ── AnnotatorSchema ───────────────────────────────────────────────────── */
+/* ────────── AnnotatorSchema ────────── */
 const AnnotatorSchema = new Schema({
   karma:     { type: Number, default: 0 },
   badges:    [{ type: String }],
@@ -33,16 +33,19 @@ const AnnotatorSchema = new Schema({
   avatarUrl: { type: String, default: '' },
   skills:    [{ type: String }],
 
-  // ← NEW: quality sub‐document
+  // ◀── UPDATED: give the entire 'quality' object a default
   quality: {
-    score:   { type: Number, default: 0 },   // 0–100 %
-    samples: { type: Number, default: 0 }    // # of submissions counted
+    type: {
+      score:   { type: Number, default: 0 },
+      samples: { type: Number, default: 0 }
+    },
+    default: () => ({})
   }
 });
 
 const Annotator = User.discriminator('annotator', AnnotatorSchema);
 
-/* ── CompanySchema (unchanged) ──────────────────────────────────────────── */
+/* ─────────── CompanySchema (unchanged) ─────────── */
 const CompanySchema = new Schema({
   companyName: { type: String, required: true },
   bio:       { type: String, maxlength: 500, default: '' },
@@ -70,3 +73,4 @@ CompanySchema.pre('save', function (next) {
 const Company = User.discriminator('company', CompanySchema);
 
 module.exports = { User, Annotator, Company };
+
