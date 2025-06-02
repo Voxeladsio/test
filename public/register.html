@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Register — Annota</title>
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+  <style>
+    /* tiny helper so we can hide/show smoothly without layout jank */
+    .hidden { display:none; }
+  </style>
+</head>
+<body>
+<header class="navbar">
+  <div class="container">
+    <a href="/" class="logo">Annota</a>
+    <nav>
+      <a href="/" class="nav-link back-link">
+        <img src="/icons/back-icon.svg" alt="" /> Back home
+      </a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="auth-container">
+    <h1>Create an Account</h1>
+    
+    <form id="register-form">
+      <fieldset class="role-toggle">
+      <legend class="visually-hidden">Account type</legend>
+
+      <label class="pill">
+        <input type="radio" name="role" value="annotator" checked>
+        <span>Annotator</span>
+      </label>
+
+      <label class="pill">
+        <input type="radio" name="role" value="company">
+        <span>Company&nbsp;/&nbsp;Lister</span>
+      </label>
+    </fieldset>
+      <input type="text" name="username" id="extraField" placeholder="Username" required />
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="password" name="password" placeholder="Password" minlength="8" required />
+   
+      <button type="submit">Register</button>
+    </form>
+
+    <p id="reg-msg"></p>
+    <p>Have an account? <a href="/signin.html">Login</a></p>
+  </div>
+</main>
+
+<script>
+/* ───── form logic ───── */
+const form        = document.getElementById('register-form');
+const msg         = document.getElementById('reg-msg');
+const extraField  = document.getElementById('extraField');
+const roleRadios = document.querySelectorAll('input[name="role"]');
+
+
+roleRadios.forEach(radio => {
+  radio.addEventListener('change', () => {
+    const isCompany = radio.value === 'company' && radio.checked;
+
+    if (isCompany) {
+      extraField.placeholder = 'Company Name';
+      extraField.name        = 'companyName';     // what backend expects
+    } else {
+      extraField.placeholder = 'Username';
+      extraField.name        = 'username';        // harmless extra prop
+    }
+    extraField.value = '';                        // clear on switch
+  });
+});
+
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+
+          /* build payload */
+  const data = Object.fromEntries(new FormData(form).entries());
+  console.log(data)
+
+          /* fire request */
+  try {
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const j = await res.json();
+    if (!res.ok) throw new Error(j.error || res.status);
+
+    msg.textContent = '✅ Registered! Redirecting…';
+    setTimeout(() => (location.href = '/'), 1000);
+  } catch (err) {
+    msg.textContent = `❌ ${err.message}`;
+  }
+});
+</script>
+</body>
+</html>

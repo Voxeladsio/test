@@ -1,0 +1,113 @@
+/* new-job.css */
+
+main.container{
+  padding-top: 0rem;
+ 
+}
+
+/* Center & style the page heading */
+main h1 {
+  text-align: center;
+  margin: var(--gap) 0 var(--gap) 0;
+  font-size: 2rem;
+  color: var(--fg);
+}
+
+/* Wrap form in its own “card” */
+.auth-container {
+  max-width: 500px;
+  margin: calc(var(--gap) * 1.5) auto;
+  padding: var(--gap) 1.5rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 2px 6px var(--shadow);
+}
+
+/* Inputs, textarea, and button all full-width */
+.auth-container input,
+.auth-container textarea,
+.auth-container button {
+  width: 100%;
+  font-size: 1rem;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: var(--gap);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-sizing: border-box;
+}
+
+/* Textarea specifics */
+.auth-container textarea {
+  min-height: 8rem;
+  resize: vertical;
+  font-family: inherit;
+}
+
+/* Focus state */
+.auth-container input:focus,
+.auth-container textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* Submit button style */
+.auth-container button {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.auth-container button:hover {
+  background: var(--light-text);
+}
+
+/* Feedback message below form */
+#job-form-message {
+  text-align: center;
+  margin-top: var(--gap);
+  font-size: 0.95rem;
+  min-height: 1.2em;
+  color: var(--primary);
+}
+
+
+/* Center the H1 inside the form “card” */
+.auth-container h1 {
+  text-align: center;
+  margin-bottom: var(--gap);    /* space between title & inputs */
+  font-size: 1.75rem;
+  color: var(--fg);
+}
+
+
+@media(max-width: 760px){
+
+.nav-link{
+    padding-top: 0rem;
+    padding-bottom: 0rem;
+  }
+
+
+  main.container{
+    padding-bottom: 0rem;
+  justify-content: center;
+}
+
+
+  .auth-container h1{
+    font-size: 1.5rem;
+  }
+
+  .auth-container input,
+  .auth-container textarea{
+    font-size: 0.9rem;
+  }
+
+
+  .auth-container textarea{
+    min-height: 6rem;
+  }
+}
+

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Job Details — Annota</title>
+  <link rel="stylesheet" href="css/base.css"/>
+  <link rel="stylesheet" href="css/job.css"/>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="container">
+      <a href="/" class="logo">Annota</a>
+      <nav id="nav-links"></nav>
+    </div>
+  </header>
+
+  <!-- JOB DETAIL -->
+  <main class="container">
+    <div id="job-detail" class="job-container">
+      <p>Loading job…</p>
+    </div>
+  </main>
+
+  <!-- Load nav first -->
+  <script src="/js/nav.js"></script>
+  <!-- Then your page logic -->
+  <script>
+     async function applyToJob(jobId) {
+  try {
+    const res = await fetch(`/api/applications/${jobId}/apply`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }   // bodyless POST
+      // No body needed; session cookie does the auth
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    console.log('%c✓ Applied!', 'color:green;', data);   // quick visual cue
+    return data;                                         // Application doc
+  } catch (e) {
+    console.error('Apply failed:', e.message);
+  }
+}
+
+
+
+     (async function initJobPage() {
+      // extract slug
+      const params = new URLSearchParams(location.search);
+     
+      const slug   = params.get('slug');
+      const detail = document.getElementById('job-detail');
+      if (!slug) {
+        detail.innerHTML = '<p>Invalid job.</p>';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/jobs/${slug}`);
+
+        if (!res.ok) throw new Error('Not found');
+        const job = await res.json();
+        applyToJob(job._id)
+
+        const posted = new Date(job.createdAt)
+          .toLocaleDateString(undefined, {
+            year:  'numeric',
+            month: 'short',
+            day:   'numeric'
+          });
+
+        detail.innerHTML = `
+          <h1>${job.title}</h1>
+          <div class="meta">
+            <span class="company">${job.company}</span>
+            <span class="date">Posted on ${posted}</span>
+          </div>
+          <div class="detail-section description-section">
+            <label class="section-label">Description:</label>
+            <p class="description">${job.description}</p>
+        </div>
+          <div class="meta rate">
+            <img src="/icons/coin.svg" alt="" class="coin-icon" />
+            \$${job.rate}/hr
+          </div>
+          <!-- … after rate … -->
+<div class="apply-area">
+  ${
+    job.applyLink
+      ? `<a href="${job.applyLink}" target="_blank" class="btn-apply">Go to Application</a>`
+      : `
+      <div class="email-apply">
+        <label for="apply-email">Contact Email:</label>
+        <span id="apply-email">${job.contactEmail}</span>
+        <button id="copy-email" class="copy-btn" aria-label="Copy email">
+          <!-- simple copy icon -->
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="9" y="9" width="12" height="12" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"/>
+          </svg>
+        </button>
+        <span id="copy-confirm" class="copy-confirm" hidden>Copied!</span>
+      </div>`
+  }
+</div>
+
+        `;
+
+        // if we're in the email case, wire up the copy button
+        if (!job.applyLink) {
+          const copyBtn = document.getElementById('copy-email');
+          const emailEl = document.getElementById('apply-email');
+          const confirmEl = document.getElementById('copy-confirm');
+          copyBtn.addEventListener('click', async () => {
+            try {
+              await navigator.clipboard.writeText(emailEl.textContent);
+              confirmEl.hidden = false;
+              setTimeout(() => confirmEl.hidden = true, 2000);
+            } catch (err) {
+              console.error('Copy failed', err);
+            }
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        detail.innerHTML = '<p>Error loading job.</p>';
+      }
+    })();
+  </script>
+</body>
+</html>

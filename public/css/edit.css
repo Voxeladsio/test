@@ -1,0 +1,72 @@
+/* Center the page-specific <h1> */
+#edit-job-title,
+.auth-container h1 {
+  text-align: center;
+}
+
+/* Optional: center the form vertically just like auth pages */
+main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* style the big description textarea */
+.auth-container textarea[name="description"] {
+  /* match your other inputs */
+  width: 100%;
+  font-size: 1rem;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: var(--gap);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-sizing: border-box;
+  min-height: 6rem;
+  resize: none;
+  font-family: inherit;
+}
+
+@media(max-width: 720px){
+
+  main.container{
+    padding-bottom: 0rem;
+     padding-top: 0rem;
+  }
+
+
+  main .container{
+    padding-top: 0rem;
+    justify-content: center;
+  }
+
+  .navbar .container{
+    padding: 0.2rem 0rem;
+  }
+
+  .logo{
+    font-size: 1.2rem;
+  }
+  
+  nav .nav-link{
+    font-size: 0.8rem;
+  }
+
+  main.container{
+  justify-content: center;
+}
+
+
+  .auth-container h1{
+    font-size: 1.5rem;
+  }
+
+  .auth-container input,
+  .auth-container textarea{
+    font-size: 0.9rem;
+  }
+
+
+  .auth-container textarea{
+    min-height: 6rem;
+  }
+}
+

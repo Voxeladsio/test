@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Edit Job — Annota</title>
+ <link rel="stylesheet" href="/css/base.css" />
+<link rel="stylesheet" href="/css/auth.css" /> <!-- for the form card -->
+<link rel="stylesheet" href="/css/edit.css" /> <!-- page-specific tweaks -->
+
+  <style>
+  /* Center only the H1 on the Edit Job page */
+  #edit-job-title {
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="container">
+      <a href="/" class="logo">Annota</a>
+       <nav>
+      <a href="/" class="nav-link back-link">
+       <img src="/icons/back-icon.svg">
+        Back home
+      </a>
+    </nav>
+    </div>
+  </header>
+
+  <!-- EDIT FORM -->
+ <main class="container">
+  <form id="edit-job-form" class="auth-container">
+    <h1>Edit Job</h1>
+
+    <!-- — your inputs — -->
+    <input type="text"    name="title"        placeholder="Job title"          required />
+    <input type="text"    name="company"      placeholder="Company"            required />
+    <textarea name="description"
+              placeholder="Description"
+              required></textarea>
+    <input type="number"  name="rate"
+           placeholder="Rate (USD/hr)" min="0" required />
+    <input type="email"   name="contactEmail"
+           placeholder="Contact email to apply" required />
+    <input type="url"     name="applyLink"
+           placeholder="Optional: external apply URL" />
+
+    <button type="submit">Save Changes</button>
+  </form>
+  <p id="edit-msg"></p>
+</main>
+
+
+  <script src="/js/nav.js"></script>
+  <script>
+  (async function() {
+    // 1) Auth + redirect if needed
+    const { user } = await (await fetch('/api/auth/me')).json();
+    if (!user) return window.location.href = '/signin.html';
+
+    // 2) Grab slug & form elements
+    const params = new URLSearchParams(location.search);
+    const slug   = params.get('slug');
+    const form   = document.getElementById('edit-job-form');
+    const msg    = document.getElementById('edit-msg');
+
+    if (!slug) {
+      msg.textContent = 'Invalid job.';
+      return;
+    }
+
+    // 3) Fetch job details for this slug
+    try {
+      const resJob = await fetch(`/api/jobs/${slug}`);
+      if (!resJob.ok) throw new Error('Not found');
+      const job    = await resJob.json();
+
+      // Fill in the form
+      form.title.value        = job.title;
+      form.company.value      = job.company;
+      form.description.value  = job.description;
+      form.rate.value         = job.rate;
+      form.contactEmail.value = job.contactEmail;
+      form.applyLink.value    = job.applyLink || '';
+
+      // Handle submit: PATCH the job by ID
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        msg.textContent = '';
+
+        const data = Object.fromEntries(new FormData(form).entries());
+        data.rate = Number(data.rate);
+
+        try {
+          const res = await fetch(`/api/jobs/${job._id}`, {
+            method: 'PATCH',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(data)
+          });
+          const j = await res.json();
+          if (!res.ok) throw new Error(j.error || res.status);
+          msg.textContent = '✅ Updated! Redirecting…';
+          setTimeout(() => location.href = '/account.html', 1000);
+        } catch (err) {
+          msg.textContent = '❌ ' + err.message;
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      msg.textContent = 'Error loading job.';
+    }
+  })();
+  </script>
+</body>
+</html>

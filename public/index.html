@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Annota — Remote Data Annotation Jobs</title>
+  <link rel="stylesheet" href="css/base.css" />
+<link rel="stylesheet" href="css/style.css" />
+
+</head>
+<body>
+  <!-- NAVBAR -->
+ <header class="navbar">
+  <div class="container">
+    <a href="/" class="logo">Annota</a>
+
+    <!-- hamburger toggle -->
+    <button class="nav-toggle" aria-label="Toggle menu">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+
+
+    <!-- NOTE the class="nav" here! -->
+    <nav id="nav-link" class="nav">
+      <a href="/signin.html" class="nav-link">Sign In</a>
+      <a href="/register.html" class="nav-link btn-secondary">Register</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+ const btn  = document.querySelector(".nav-toggle");
+const nav  = document.getElementById("nav-link");
+const bars = document.querySelectorAll(".nav-toggle .bar");
+
+btn.addEventListener("click", () => {
+  // dropdown
+  nav.classList.toggle("active");
+
+  // bars → X
+  bars.forEach(bar => bar.classList.toggle("x"));
+});
+
+</script>
+
+
+
+
+  <!-- MAIN CONTENT -->
+  <main class="container">
+    <h1>Available Data Annotation Jobs 💰</h1>
+
+    <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <input
+      type="text"
+      id="filter-keyword"
+      placeholder="Search by keyword…"
+    />
+    <input
+      type="number"
+      id="filter-rate"
+      placeholder="Min rate (USD/hr)"
+      min="0"
+    />
+    <button id="filter-apply">Search</button>
+    <button id="filter-clear">Clear</button>
+  </div>
+
+    <section class="jobs-grid" id="jobs-list">
+      <!-- JS will inject <article class="job-card">…</article> here -->
+      <div class="job-card placeholder">Loading…</div>
+    </section>
+
+    <!-- END OF LISTING INDICATOR -->
+    <div id="end-of-listing" class="end-of-listing">
+      — End of listings —
+    </div>
+  </main>
+
+   <!-- Help icon (fixed in corner) -->
+  <div id="help-icon" class="help-icon" aria-label="Help" role="button" tabindex="0">?</div>
+
+  <!-- Help modal overlay -->
+  <div id="help-modal" class="help-modal" aria-hidden="true">
+    <div class="help-content" role="dialog" aria-modal="true" aria-labelledby="help-title">
+      <button id="help-close" class="help-close" aria-label="Close help">&times;</button>
+
+      <div class="help-body">
+        <!-- Left: text -->
+       <div class="help-text">
+          <h2 id="help-title">About Annota</h2>
+
+          <p>
+            Annota is the go-to job board for remote data-annotation work.  
+            We match ambitious annotators with pre-vetted companies that are
+            genuinely hiring—no middlemen, no junk listings.
+          </p>
+
+          <h3>How it works</h3>
+          <ul>
+            <li>Companies post openings and link straight to their ATS or email.</li>
+            <li>Annotators browse roles and apply directly—no hoops.</li>
+            <li>Zero fees. Zero hassle. 100 % transparency.</li>
+          </ul>
+      </div>
+
+
+        <!-- Right: mascot graphic -->
+        <div class="help-mascot-wrap">
+          <img src="/icons/annota-icon.png" alt="Annota mascot" class="help-mascot"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <script src="/js/app.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/testLS.js"></script>
+</body>
+</html>

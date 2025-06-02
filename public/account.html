@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>My Listings — Annota</title>
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+
+</head>
+<body>
+  <header class="navbar">
+    <div class="container">
+      <a href="/" class="logo">Annota</a>
+     <nav>
+      <a href="/" class="nav-link back-link">
+       <img src="/icons/back-icon.svg">
+        Back home
+      </a>
+    </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1>My Job Listings</h1>
+    <div id="jobs-dashboard">
+      <p>Loading…</p>
+    </div>
+  </main>
+
+   <!-- Help icon (fixed in corner) -->
+  <div id="help-icon" class="help-icon" aria-label="Help" role="button" tabindex="0">?</div>
+
+  <!-- Help modal overlay -->
+  <div id="help-modal" class="help-modal" aria-hidden="true">
+    <div class="help-content" role="dialog" aria-modal="true" aria-labelledby="help-title">
+      <button id="help-close" class="help-close" aria-label="Close help">&times;</button>
+
+      <div class="help-body">
+        <!-- Left: text -->
+       <div class="help-text">
+          <h2 id="help-title">About Annota</h2>
+
+          <p>
+            Annota is the go-to job board for remote data-annotation work.  
+            We match ambitious annotators with pre-vetted companies that are
+            genuinely hiring—no middlemen, no junk listings.
+          </p>
+
+          <h3>How it works</h3>
+          <ul>
+            <li>Companies post openings and link straight to their ATS or email.</li>
+            <li>Annotators browse roles and apply directly—no hoops.</li>
+            <li>Zero fees. Zero hassle. 100 % transparency.</li>
+          </ul>
+      </div>
+
+
+        <!-- Right: mascot graphic -->
+        <div class="help-mascot-wrap">
+          <img src="/icons/annota-icon.png" alt="Annota mascot" class="help-mascot"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+
+   <script src="/js/app.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Redirect if not authenticated
+    const auth = await (await fetch('/api/auth/me')).json();
+    if (!auth.user) return window.location.href = '/signin.html';
+
+    const dash = document.getElementById('jobs-dashboard');
+
+    // Render the dashboard table
+    async function loadDashboard() {
+      try {
+        const res = await fetch('/api/jobs/my');
+        if (!res.ok) throw new Error('Failed to load');
+        const jobs = await res.json();
+
+        if (!jobs.length) {
+          dash.innerHTML = '<p>You have no listings yet. <a href="/new-job.html">Post one now.</a></p>';
+          return;
+        }
+
+        dash.innerHTML = `
+          <div class= 'jobs-container'>
+            <table class="dashboard-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Date</th>
+                  <th>Rate</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${jobs.map(job => {
+                  const date = new Date(job.createdAt).toLocaleDateString();
+                  return `
+                    <tr data-id="${job._id}" data-slug="${job.slug}">
+                      <td><a href="/job.html?slug=${job.slug}">${job.title}</a></td>
+                      <td>${date}</td>
+                      <td>$${job.rate}/hr</td>
+                      <td id="action-id">
+                        <a href="/edit-job.html?slug=${job.slug}" class="btn-edit">Edit</a>
+
+                        <button class="btn-delete">Delete</button>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+
+          </div>
+          <p><a href="/new-job.html" class="btn-primary">+ Post a new listing</a></p>
+        `;
+      } catch (err) {
+        console.error(err);
+        dash.innerHTML = '<p>Error loading your listings.</p>';
+      }
+    }
+
+    await loadDashboard();
+
+    // Delegate delete & edit
+    dash.addEventListener('click', async e => {
+    const tr = e.target.closest('tr[data-id]');
+    if (!tr) return;
+    const id   = tr.dataset.id;
+    const slug = tr.dataset.slug;
+
+    // DELETE stays the same
+    if (e.target.classList.contains('btn-delete')) {
+      if (!confirm('Really delete this listing?')) return;
+      await fetch(`/api/jobs/${id}`, { method: 'DELETE' });
+      return loadDashboard();
+    }
+    
+    });
+  });
+  </script>
+</body>
+</html>

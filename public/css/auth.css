@@ -1,0 +1,157 @@
+main{
+    justify-content: center;
+}
+
+
+/* Back-icon spacing */
+.back-icon {
+  display: inline-block;
+  margin-right: 0.25em;
+  font-size: 1em;
+}
+
+/* “Back to Listings” link styling */
+.back-link {
+  font-weight: 500;
+  color: var(--secondary);
+  text-decoration: none;
+  transition: color 0.3s, opacity 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.back-link:hover {
+  filter: opacity(0.6);
+}
+
+/* Auth “card” wrapper */
+.auth-container {
+  max-width: 500px;
+  padding: var(--gap) 1.5rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 2px 6px var(--shadow);
+
+  /* ensure it shrinks to its content, not full height */
+  flex: 0 0 auto;
+  height: auto;
+  align-self: center;
+}
+
+/* Auth heading */
+.auth-container h1 {
+  margin-bottom: var(--gap);
+  font-size: 1.75rem;
+  color: var(--fg);
+  text-align: center;
+}
+
+/* Inputs & button inside auth-container */
+.auth-container input,
+.auth-container button {
+  width: 100%;
+  font-size: 1rem;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: var(--gap);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-sizing: border-box;
+}
+.auth-container input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+.auth-container button {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.auth-container button:hover {
+  background: var(--light-text);
+}
+
+/* Login message area */
+#login-msg {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--secondary);
+  min-height: 1.2em;
+}
+
+/* “No account? Register” link */
+.auth-container p a {
+  color: var(--primary);
+  text-decoration: none;
+}
+.auth-container p a:hover {
+  text-decoration: underline;
+}
+
+
+@media (max-width: 760px){
+   .nav-link{
+    padding-top: 0rem;
+    padding-bottom: 0rem;
+  }
+}
+
+.visually-hidden {
+  position:absolute!important;
+  width:1px; height:1px;
+  margin:-1px; padding:0;
+  overflow:hidden;
+  clip:rect(0 0 0 0);
+  border:0;
+}
+
+/* container */
+.role-toggle{
+  display:flex;
+  background:#f3f4f8;
+  border:none;
+  border-radius:.75rem;
+  overflow:hidden;
+  margin:.75rem 0 1rem;                      /* sits right under H1 */
+}
+
+/* each pill */
+.pill{
+  flex:1;
+  position:relative;                         /* ⚠️ confines abs radio */
+  cursor:pointer;
+}
+
+.pill input{
+  appearance:none;                           /* hide default dot    */
+  position:absolute;
+  inset:0;                                   /* fill the pill area  */
+  opacity:0;
+}
+
+.pill span{
+  display:block;
+  padding:.75rem 0;
+  text-align:center;
+  font-size:.95rem;
+  font-weight:600;
+  background:#f3f4f8;
+  color:#555;
+  user-select:none;
+  transition:background .25s,color .25s;
+}
+
+/* selected look */
+.pill input:checked + span{
+  background:var(--primary);
+  color:#fff;
+}
+
+/* keyboard focus ring */
+.pill input:focus-visible + span{
+  outline:3px solid color-mix(in srgb,var(--primary) 60%,#000 40%);
+  outline-offset:-2px;
+}

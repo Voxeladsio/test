@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Sign In — Annota</title>
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+</head>
+<body>
+  <header class="navbar">
+  <div class="container">
+    <!-- Logo -->
+      <a href="/" class="logo">Annota</a>
+
+    <!-- Back link instead of Register button -->
+    <nav>
+      <a href="/" class="nav-link back-link">
+       <img src="/icons/back-icon.svg">
+        Back home
+      </a>
+    </nav>
+  </div>
+</header>
+  <main class="container">
+   <!-- new wrapper we’ll center -->
+    <div class="auth-container">
+      <h1>Welcome back</h1>
+      <form id="login-form">
+        <input type="email"    name="email"    placeholder="Email" required />
+        <input type="password" name="password" placeholder="Password" required />
+        <button type="submit">Sign In</button>
+      </form>
+      <p id="login-msg"></p>
+      <p>No account? <a href="/register.html">Register</a></p>
+    </div>
+  </main>
+  <script>
+    const form = document.getElementById('login-form');
+    const msg  = document.getElementById('login-msg');
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+      try {
+        const res = await fetch('/api/auth/login', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(data)
+        });
+        const j = await res.json();
+        if (!res.ok) throw new Error(j.error || res.status);
+        msg.textContent = '✅ Signed in! Redirecting…';
+        setTimeout(()=> location.href='/',1000);
+      } catch (err) {
+        msg.textContent = `❌ ${err.message}`;
+      }
+    });
+  </script>
+</body>
+</html>

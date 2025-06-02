@@ -1,0 +1,154 @@
+/* ──────────────────────────────────────────────────────────
+   Page title spacing
+────────────────────────────────────────────────────────── */
+
+main.container{
+    width: 60%;
+    justify-content: center;
+}
+
+main h1 {
+  margin-bottom: var(--gap);
+}
+
+/* ──────────────────────────────────────────────────────────
+   Job Container “Card”
+────────────────────────────────────────────────────────── */
+.job-container {
+  background:     var(--card-bg);
+  border:         1px solid var(--border);
+  border-radius:  var(--radius);
+  box-shadow:     0 2px 6px var(--shadow);
+  padding:        var(--gap) 1.5rem;
+  margin-bottom:  var(--gap);
+}
+
+/* ──────────────────────────────────────────────────────────
+   Meta Info (company + date)
+────────────────────────────────────────────────────────── */
+.job-container .meta {
+  display:       flex;
+  align-items:   center;
+  gap:           var(--gap);
+  margin-bottom: var(--gap);
+}
+
+.job-container .company {
+  font-weight: bold;
+  color:       var(--secondary);
+}
+
+.job-container .date {
+  color: var(--light-text);
+}
+
+
+/* ──────────────────────────────────────────────────────────
+   Sections & Labels
+────────────────────────────────────────────────────────── */
+
+/* ─── Highlight the Description ─── */
+.description-section {
+  border-left: 4px solid var(--primary);
+  padding-left: var(--gap);
+}
+
+
+.detail-section {
+  margin-bottom: var(--gap);
+}
+.section-label {
+  display:      block;
+  margin-bottom: 0.5rem;
+  font-weight:   bold;
+}
+
+/* ──────────────────────────────────────────────────────────
+   Description Text
+────────────────────────────────────────────────────────── */
+.description-section .description {
+  margin:       0;
+  line-height:  1.6em;
+  color:        var(--fg);
+}
+
+/* ──────────────────────────────────────────────────────────
+   Rate Display (if you use .meta.rate) 
+────────────────────────────────────────────────────────── */
+
+.meta.rate {
+  background-color: var(--primary);
+  width: fit-content;
+  padding: 0.2rem 1rem;
+  border-radius: var(--radius);
+  border-bottom-left-radius: 5px;
+   border-top-left-radius: 5px;
+  grid-area: rate;
+  font-weight: bold;
+  color: var(--fg);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+
+/* ──────────────────────────────────────────────────────────
+   Apply Button / Email-Apply Area
+────────────────────────────────────────────────────────── */
+.apply-area {
+  margin-top: var(--gap);
+  display: flex;
+}
+
+.btn-apply {
+  background:        var(--primary);
+  color:             #fff;
+  text-decoration:   none;
+  padding:           0.4rem 0.8rem;
+  border-radius:     var(--radius);
+  transition:        background 0.2s;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 0;
+}
+
+.btn-apply:hover {
+  background: var(--light-text);
+}
+
+/* email-apply block */
+.email-apply {
+  display:      flex;
+  align-items:  center;
+  gap:          var(--gap);
+  margin-top:   var(--gap);
+}
+.email-apply label {
+  font-weight: bold;
+}
+.copy-btn {
+  background:       transparent;
+  border:           none;
+  cursor:           pointer;
+  padding:          0.2rem;
+  border-radius:    var(--radius);
+  transition:       background 0.2s;
+}
+.copy-btn:hover {
+  background: rgba(0,0,0,0.05);
+}
+.copy-confirm {
+  font-size: 0.9rem;
+  color:     var(--primary);
+}
+
+/* ──────────────────────────────────────────────────────────
+   Dynamic Nav “Welcome” (injected by nav.js)
+────────────────────────────────────────────────────────── */
+.nav-welcome {
+  margin-right: var(--gap);
+  font-size:    0.95rem;
+  color:        var(--secondary);
+}

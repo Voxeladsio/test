@@ -1,0 +1,137 @@
+/* ──────────────────────────────────────────────────────────
+   Dashboard Table
+────────────────────────────────────────────────────────── */
+.dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--gap);
+}
+.dashboard-table th,
+.dashboard-table td {
+  border: 1px solid var(--border);
+  padding: 0.5rem 1rem;
+  text-align: left;
+}
+.dashboard-table th {
+  background: var(--card-bg);
+  color:      var(--secondary);
+}
+
+/* Title link inside the table */
+.dashboard-table td a {
+  color: var(--fg);
+  text-decoration: none;
+}
+
+/* Actions cell wrapper */
+#action-id {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ── Edit & Delete buttons ── */
+.dashboard-table .btn-edit,
+.dashboard-table .btn-delete {
+  background: transparent;
+  border-radius: var(--radius);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: 1px solid;
+}
+.dashboard-table .btn-edit {
+  color:       var(--primary);
+  border-color:var(--primary);
+}
+.dashboard-table .btn-delete {
+  color:       #e00;
+  border-color:#e00;
+}
+
+/* “Post a new listing” CTA under the table */
+#jobs-dashboard .btn-primary {
+  background: var(--primary);
+  color: #fff;
+  text-decoration: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius);
+  transition: background 0.2s;
+}
+#jobs-dashboard .btn-primary:hover {
+  background: #b4b4b4;
+}
+
+/* Message / empty-state text */
+#edit-msg,
+#jobs-dashboard p {
+  margin-top: var(--gap);
+  font-size: 0.95rem;
+  
+}
+
+
+/* dashboard.css */
+
+@media (max-width: 700px) {
+
+  .nav-link{
+    padding-top: 0rem;
+    padding-bottom: 0rem;
+  }
+
+  .jobs-container{
+    height: 60vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  
+
+  /* hide the header row */
+  .dashboard-table thead {
+    display: none;
+  }
+  /* make everything block-level */
+  .dashboard-table,
+  .dashboard-table tbody,
+  .dashboard-table tr,
+  .dashboard-table td {
+    display: block;
+
+  }
+  /* style each row as a “card” */
+  .dashboard-table tr {
+    margin-bottom: var(--gap);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card-bg);
+    box-shadow: 0 2px 4px var(--shadow);
+  }
+  /* stack each cell, with a pseudo-label before its content */
+  .dashboard-table td {
+    position: relative;
+    padding: 0.5rem 1rem 0.5rem calc(40% + 1rem);
+    border-bottom: 1px solid var(--border);
+  }
+  .dashboard-table td:last-child {
+    border-bottom: none;
+  }
+  .dashboard-table td::before {
+    position: absolute;
+    top: 50%;
+    left: 1rem;
+    transform: translateY(-50%);
+    width: 40%;
+    white-space: nowrap;
+    font-weight: bold;
+  }
+  /* inject the right label per column */
+  .dashboard-table td:nth-of-type(1)::before { content: "Title"; }
+  .dashboard-table td:nth-of-type(2)::before { content: "Date"; }
+  .dashboard-table td:nth-of-type(3)::before { content: "Rate"; }
+  .dashboard-table td:nth-of-type(4)::before { content: "Actions"; }
+
+  
+}
+
+
+

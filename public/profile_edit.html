@@ -1,0 +1,27 @@
+<!-- edit_profile.html (annotator example) -->
+<form id="edit-form">
+  <input name="username"  placeholder="Username">
+  <textarea name="bio"    placeholder="Bio (max 500 chars)"></textarea>
+  <input name="avatarUrl" placeholder="Avatar URL">
+  <input name="skills"    placeholder="Skills (comma-separated)">
+  <button>Save</button>
+</form>
+
+<script>
+const f = document.getElementById('edit-form');
+f.addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const data = Object.fromEntries(new FormData(f).entries());
+  if (data.skills) data.skills = data.skills.split(',').map(s=>s.trim());
+
+  const res = await fetch('/api/profile/me', {
+    method:'PUT',
+    headers:{ 'Content-Type':'application/json' },
+    body: JSON.stringify(data)
+  });
+  const json = await res.json();
+  if (!res.ok) return alert(json.error || res.status);
+  alert('Updated!');
+});
+</script>
