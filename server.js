@@ -1,6 +1,7 @@
 // server.js
 require('dotenv').config();
 
+const cors    = require('cors');
 const mongoose = require('mongoose');
 const express = require('express');
 const path = require('path');
@@ -49,6 +50,12 @@ mongoose
   }
 }));
 
+app.use(
+  cors({
+    origin: 'https://test-41uj.onrender.com',  // your deployed front-end host
+    credentials: true                          // allow cookies (for sessions)
+  })
+);
 
 // — Middlewares —
 
