@@ -8,37 +8,37 @@ const { awardKarma }   = require('../utils/karma');
 const { pushNotification } = require('../utils/notify');
 
 /**
- * gradeSingle(taskId, choice, tasks)
+ * gradeSingle(innerId, choice, tasks)
  *
- * - taskId:  the LS “task.id” (a number) from the webhook’s TASK or ANNOTATION payload
+ * - innerId: the LS “inner_id” (1 or 2) that matches the original task.id you imported.
  * - choice:  the string the annotator picked (e.g. "Cat" or "Dog")
- * - tasks:   the full SkillTest.tasks array, each entry { id, data: { correct_answer, … } }
+ * - tasks:   the SkillTest.tasks array, each entry has { id, data: { correct_answer, … } }
  *
- * Returns: 100 if choice === correct_answer for this task; otherwise 0.
+ * Returns: 100 if choice === correct_answer for that innerId; otherwise 0.
  */
-function gradeSingle(taskId, choice, tasks) {
-  const found = tasks.find((t) => t.id === taskId);
+function gradeSingle(innerId, choice, tasks) {
+  const found = tasks.find((t) => t.id === innerId);
   if (!found) return 0;
   return found.data.correct_answer === choice ? 100 : 0;
 }
 
 router.post('/ls', express.json(), async (req, res) => {
-  // 1) Log the raw payload so we can inspect both TASKS_CREATED and ANNOTATION_CREATED:
+  // 1) Dump the raw payload
   console.log('▶️ LS webhook payload:', JSON.stringify(req.body, null, 2));
 
   try {
     const { action } = req.body;
 
-    // 2) Ignore the initial TASKS_CREATED webhook (no annotation yet)
+    // 2) Ignore the initial TASKS_CREATED payload
     if (action === 'TASKS_CREATED') {
       return res.json({ ok: true });
     }
 
-    // 3) Process only ANNOTATION_CREATED
+    // 3) Only handle ANNOTATION_CREATED
     if (action === 'ANNOTATION_CREATED') {
-      // 3A) Extract the top‐level "task" object (LS’s task) and "annotation" object
-      const lsTask       = req.body.task;
-      const lsAnnotation = req.body.annotation;
+      // 3A) Extract both the LS task object and the annotation object
+      const lsTask       = req.body.task;        // includes inner_id, data, etc.
+      const lsAnnotation = req.body.annotation;  // includes result array
 
       if (!lsTask || !lsTask.data) {
         console.error('❌ Missing task.data in ANNOTATION_CREATED payload');
@@ -49,7 +49,15 @@ router.post('/ls', express.json(), async (req, res) => {
         return res.status(400).json({ error: 'Malformed payload: no annotation.result' });
       }
 
-      // 3B) Get userId and testId from lsTask.data
+      // 3B) Grab the small ID you originally set (inner_id) and the choice
+      const innerId      = lsTask.inner_id;  // <— this is 1 or 2, matching your SkillTest.tasks[].id
+      const pickedChoice = lsAnnotation.result[0]?.value?.choices?.[0];
+      if (typeof pickedChoice !== 'string') {
+        console.error('❌ Cannot find picked choice in annotation.result:', lsAnnotation.result);
+        return res.status(400).json({ error: 'Malformed annotation.result' });
+      }
+
+      // 3C) Extract userId and testId from task.data
       const userId = lsTask.data.user;
       const testId = lsTask.data.test;
       if (!userId || !testId) {
@@ -57,27 +65,18 @@ router.post('/ls', express.json(), async (req, res) => {
         return res.status(400).json({ error: 'Missing user/test in payload' });
       }
 
-      // 3C) Get the annotator’s chosen value for this single task:
-      //      LS’s "annotation.result" is an array; for a single-choice task, result[0].value.choices[0] is the pick.
-      const pickedChoice = lsAnnotation.result[0]?.value?.choices?.[0];
-      if (typeof pickedChoice !== 'string') {
-        console.error('❌ Cannot find picked choice in annotation.result:', lsAnnotation.result);
-        return res.status(400).json({ error: 'Malformed annotation.result' });
-      }
-
-      // 3D) Fetch the SkillTest doc so we know its full "tasks" array and thresholds
+      // 3D) Load the SkillTest so we know its thresholds & tasks array
       const testDoc = await SkillTest.findById(testId);
       if (!testDoc) {
         console.error('❌ SkillTest not found for ID:', testId);
         return res.status(404).json({ error: 'Test not found' });
       }
 
-      // 3E) Grade this one task: 100 if correct, else 0
-      const taskId      = lsTask.id;
-      const oneAccuracy = gradeSingle(taskId, pickedChoice, testDoc.tasks);
+      // 3E) Grade this one annotation using the inner_id
+      const oneAccuracy = gradeSingle(innerId, pickedChoice, testDoc.tasks);
       const passed      = oneAccuracy >= testDoc.passThreshold;
 
-      // 3F) Save a SkillSubmission document for this single task attempt
+      // 3F) Create a SkillSubmission record
       await SkillSubmission.create({
         test:     testId,
         user:     userId,
@@ -85,34 +84,33 @@ router.post('/ls', express.json(), async (req, res) => {
         passed
       });
 
-      // 3G) Bump the annotator’s running-average quality and send a QUALITY notification
+      // 3G) Bump the annotator’s quality and send a QUALITY notification
       await bumpQuality(userId, oneAccuracy);
 
-      // 3H) If they passed this task, award karma and send a KARMA notification
+      // 3H) If passed, award karma and send a KARMA notification
       if (passed) {
         await awardKarma(userId, testDoc.karmaReward, `passed "${testDoc.title}"`);
         await pushNotification(
           userId,
-          `🎉 You passed "${testDoc.title}" (task ${taskId}) with ${oneAccuracy.toFixed(1)}%!`,
+          `🎉 You passed "${testDoc.title}" (task ${innerId}) with ${oneAccuracy.toFixed(1)}%!`,
           'KARMA'
         );
       } else {
-        // If they didn’t pass, still notify them of their score on this task
+        // If not passed, send a score notification
         await pushNotification(
           userId,
-          `You scored ${oneAccuracy.toFixed(1)}% on "${testDoc.title}" (task ${taskId}). ` +
+          `You scored ${oneAccuracy.toFixed(1)}% on "${testDoc.title}" (task ${innerId}). ` +
           `Threshold: ${testDoc.passThreshold}%`,
           'QUALITY'
         );
       }
 
-      // 3I) Acknowledge LS with 200 OK
+      // 3I) Let LS know we processed it
       return res.json({ ok: true });
     }
 
-    // 4) If LS ever sends a different action, just return 200
+    // 4) Any other action: just return OK
     return res.json({ ok: true });
-
   } catch (err) {
     console.error('❌ Webhook /api/webhooks/ls error:', err);
     return res.status(500).json({ error: 'Server error in webhook' });
